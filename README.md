@@ -96,6 +96,23 @@ Click on the **blog-post-table*** table to view the items. You can view the item
 
 ![image](https://gist.github.com/assets/47351025/f0e2caab-fef1-4aee-8736-45d93879799f)
 
+### Run the unit tests
+
+You can run DynamoDB unit tests for the application which creates a table, adds a post, and retrieves the post. Install the Go dependencies by running the following command in the root directory:
+
+```bash
+go get -t dynamodb-local-test/pkg/service
+```
+
+Run the tests by running the following command:
+
+```bash
+docker-compose up --detach
+pushd pkg/service && go test
+popd
+docker-compose down
+```
+
 ### GitHub Action
 
 This application sample hosts an example GitHub Action workflow that starts up LocalStack, builds the Lambda functions, and deploys the infrastructure on the runner. You can find the workflow in the `.github/workflows/main.yml` file. To run the workflow, you can fork this repository and push a commit to the `main` branch.

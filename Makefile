@@ -15,13 +15,14 @@ run_docker: build_docker
 
 test:
 	docker-compose up --detach;
-	cd pkg/service && go test;
+	pushd pkg/service && go test;
+	popd;
 	docker-compose down;
 
 deploy:
 	cd cdk;\
-	cdk deploy '*'
+	cdklocal bootstrap && cdklocal deploy '*'
 
 destroy:
 	cd cdk;\
-	cdk destroy \*
+	cdklocal destroy \*

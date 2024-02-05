@@ -22,7 +22,7 @@ func newPostService() (PostService, error) {
 		if service == dynamodb.ServiceID && region == "us-east-1" {
 			return aws.Endpoint{
 				PartitionID:   "aws",
-				URL:           "http://localhost:8000",
+				URL:           "http://localhost:4566",
 				SigningRegion: "us-east-1",
 			}, nil
 		}
