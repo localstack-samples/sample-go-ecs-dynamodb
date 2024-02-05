@@ -20,7 +20,7 @@ We are using the following AWS services and their features to build our infrastr
 
 - LocalStack Pro with the [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli).
 - [Cloud Development Kit (CDK)](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) installed with the [`cdklocal` wrapper](https://docs.localstack.cloud/user-guide/integrations/aws-cdk/).
-- [Node.js](https://nodejs.org/en/) with the `npm` package manager.
+- [Node.js](https://nodejs.org/en/) with the `yarn` package manager.
 - `curl` or a similar tool to test the application.
 
 Start LocalStack Pro with the `LOCALSTACK_API_KEY` pre-configured:
@@ -94,7 +94,7 @@ You can additionally navigate to the [LocalStack Web Application](https://app.lo
 
 Click on the **blog-post-table*** table to view the items. You can view the items by switching to scan, selecting the index, and clicking **Submit**. You will see the following:
 
-![image](https://gist.github.com/assets/47351025/f0e2caab-fef1-4aee-8736-45d93879799f)
+![DynamoDB Resource Browser](./images/dynamodb-resource-browser.png)
 
 ### Run the unit tests
 
