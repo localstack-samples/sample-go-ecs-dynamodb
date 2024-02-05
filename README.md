@@ -1,71 +1,107 @@
-# Testing webservice using DynamoDB Local
+# Golang webservice with Elastic Container Service, Application Load Balancer, and DynamoDB
 
-This repository contains sample webservice written in Go and deployed with CDK.
+## Introduction
 
-It demonstrates:
-* how to build a simple webservice using Go
-* how to build the webservice Docker container using multistage build process
-* how to deploy the webservice to AWS using CDK as a Fargate service
-* how to test the webservice using DynamoDB Local
+This Golang app creates a basic web service for adding and retrieving posts. It's leverages Elastic Container Service (ECS) and Application Load Balancer (ALB) for containerized app deployment and scaling. DynamoDB is used to store posts. The app is deployable on LocalStack and AWS seamlessly using Cloud Development Kit (CDK). To test, we'll show how to use LocalStack to deploy infrastructure on your developer machine and CI environment.
 
-### Prerequisites
-The following components need to be installed in order to build and run the code:
-* Node.JS
-* AWS CDK
-* Go
-* Docker
+## Architecture
 
-The code was tested using Node.JS 12.18.2, CDK 1.110.0, Go 1.16.5, Docker 20.10.7
+The following diagram shows the architecture that this sample application builds and deploys:
 
+![]
 
-### Webservice endpoints
-* Add post `POST /post`
+We are using the following AWS services and their features to build our infrastructure:
 
-    Request format:
-    ```json
-    {
+- [ECS](https://docs.localstack.cloud/user-guide/aws/elastic-container-service/) as a container orchestration service to deploy and manage containers using Fargate.
+- [DynamoDB](https://docs.localstack.cloud/user-guide/aws/dynamodb/) as a key-value NoSQL database to store and retrieve posts.
+- [Elastic Load Balancing](https://docs.localstack.cloud/user-guide/aws/elastic-load-balancing/) to distribute incoming traffic across multiple targets on ECS.
+
+## Prerequisites
+
+- LocalStack Pro with the [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli).
+- [Cloud Development Kit (CDK)](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) installed with the [`cdklocal` wrapper](https://docs.localstack.cloud/user-guide/integrations/aws-cdk/).
+- [Node.js](https://nodejs.org/en/) with the `npm` package manager.
+- `curl` or a similar tool to test the application.
+
+Start LocalStack Pro with the `LOCALSTACK_API_KEY` pre-configured:
+
+```shell
+export LOCALSTACK_API_KEY=<your-api-key>
+localstack start
+```
+
+> If you prefer running LocalStack in detached mode, you can add the `-d` flag to the `localstack start` command, and use Docker Desktop to view the logs.
+
+## Instructions
+
+### Install the dependencies
+
+Install the Node.js dependencies by running the following command in the `cdk` directory:
+
+```shell
+yarn install
+```
+
+### Deploy the application
+
+To create the AWS infrastructure locally, you can use CDK and our `cdklocal` wrapper.
+
+```shell
+cdklocal bootstrap
+cdklocal deploy --all
+```
+
+This will deploy the `ddblocal-fargate-stack` stack, which includes the ECS service, the Application Load Balancer, and the DynamoDB table. You will see the output of the stack, including the URL of the load balancer.
+
+```shell
+✅  ddblocal-fargate-stack
+
+✨  Deployment time: 30.16s
+
+Outputs:
+ddblocal-fargate-stack.MyFargateServiceLoadBalancerDNS704F6391 = lb-9f06ca8a.elb.localhost.localstack.cloud
+ddblocal-fargate-stack.MyFargateServiceServiceURL4CF8398A = http://lb-9f06ca8a.elb.localhost.localstack.cloud
+Stack ARN:
+arn:aws:cloudformation:us-east-1:000000000000:stack/ddblocal-fargate-stack/483afbca
+
+✨  Total time: 32.92s
+```
+
+Copy the `MyFargateServiceServiceURL` output and use it to test the application.
+
+### Testing the application
+
+Run the following command to add a post to the database:
+
+```bash
+curl -X POST https://lb-bee07cad.elb.localhost.localstack.cloud/post \
+     -H "Content-Type: application/json" \
+     -d '{
         "id": "1",
         "title": "my post #1",
         "content": "here is the post content",
         "status": "posted"
-    }
-    ````
-* Get post by post number `GET /post/<post_number>`
+     }'
+```
 
-## Commands
+Replace `lb-bee07cad.elb.localhost.localstack.cloud` with the URL of your load balancer. Run the following command to retrieve the post from the database:
 
-You need to run the command to install NodeJS modules: `cd cdk; npm install`
+```bash
+curl -X GET https://lb-bee07cad.elb.localhost.localstack.cloud/post/1
+```
 
-### Deploy and run the webservice on AWS
+You can additionally navigate to the [LocalStack Web Application](https://app.localstack.cloud) and the [DynamoDB Resource Browser](https://app.localstack.cloud/inst/default/resources/dynamodb).
 
-1. Deploy resources to AWS running `make deploy`
-2. Get DNS name of ALB deployed and call the service using Postman or other HTTP client of your choice.
-3. Remove resources running `make destroy`
+Click on the **blog-post-table*** table to view the items. You can view the items by switching to scan, selecting the index, and clicking **Submit**. You will see the following:
 
-### Run as a local application
+![image](https://gist.github.com/assets/47351025/f0e2caab-fef1-4aee-8736-45d93879799f)
 
-Run `make run` command to run the service as a local application connected to DynamoDB in AWS (the table should be created before).
+### GitHub Action
 
-### Build Docker container
+This application sample hosts an example GitHub Action workflow that starts up LocalStack, builds the Lambda functions, and deploys the infrastructure on the runner. You can find the workflow in the `.github/workflows/main.yml` file. To run the workflow, you can fork this repository and push a commit to the `main` branch.
 
-Run `make build_docker` to build Docker container.
+Users can adapt this example workflow to run in their own CI environment. LocalStack supports various CI environments, including GitHub Actions, CircleCI, Jenkins, Travis CI, and more. You can find more information about the CI integration in the [LocalStack documentation](https://docs.localstack.cloud/user-guide/ci/).
 
-### Run in Docker container
+## Contributing
 
-Run `make run_docker` to build Docker container and run locally
-
-### Run unit test locally using DynamoDB Local
-
-Run `make test` to run unit tests of the service using DynamoDB Local database.
-
-### Clean resources
-
-Run `make destroy` to undeploy AWS resources.
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This code is licensed under the MIT-0 License. See the LICENSE file.
+We appreciate your interest in contributing to our project and are always looking for new ways to improve the developer experience. We welcome feedback, bug reports, and even feature ideas from the community. Refer to the [contributing guide](CONTRIBUTING.md) for more details on how to get started.
