@@ -1,16 +1,15 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
-
 package main
 
 import (
 	"context"
+	"crypto/tls"
 	"dynamodb-local-test/pkg/api"
 	"dynamodb-local-test/pkg/model"
 	"dynamodb-local-test/pkg/service"
 	"dynamodb-local-test/pkg/utils"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -51,6 +50,15 @@ func main() {
 		log.Printf("Use default role")
 		awsCfg, err = config.LoadDefaultConfig(ctx)
 	}
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	httpClient := &http.Client{Transport: tr}
+
+	awsCfg, err = config.LoadDefaultConfig(ctx,
+		config.WithHTTPClient(httpClient),
+	)
 
 	ddbSvc := dynamodb.NewFromConfig(awsCfg)
 	log.Printf("DDB service created")
