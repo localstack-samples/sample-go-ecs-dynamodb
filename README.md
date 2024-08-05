@@ -23,10 +23,10 @@ We are using the following AWS services and their features to build our infrastr
 - [Node.js](https://nodejs.org/en/) with the `yarn` package manager.
 - `curl` or a similar tool to test the application.
 
-Start LocalStack Pro with the `LOCALSTACK_API_KEY` pre-configured:
+Start LocalStack Pro with the `LOCALSTACK_AUTH_TOKEN` pre-configured:
 
 ```shell
-export LOCALSTACK_API_KEY=<your-api-key>
+export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
 localstack start
 ```
 
