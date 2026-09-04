@@ -18,9 +18,9 @@ We are using the following AWS services and their features to build our infrastr
 
 ## Prerequisites
 
-- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/getting-started/auth-token/) to activate LocalStack.
-- [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli).
-- [Cloud Development Kit (CDK)](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) installed with the [`cdklocal` wrapper](https://docs.localstack.cloud/user-guide/integrations/aws-cdk/).
+- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/aws/getting-started/auth-token/) to activate LocalStack.
+- [`lstk` CLI](https://docs.localstack.cloud/aws/developer-tools/running-localstack/lstk/).
+- [Cloud Development Kit (CDK)](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) installed, deployed via the `lstk cdk` proxy.
 - [Node.js](https://nodejs.org/en/) with the `yarn` package manager.
 - `curl` or a similar tool to test the application.
 
@@ -31,7 +31,6 @@ Start LocalStack with the `LOCALSTACK_AUTH_TOKEN` pre-configured:
 ```shell
 export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
 make start
-make ready
 ```
 
 ## Instructions
@@ -46,11 +45,11 @@ yarn install
 
 ### Deploy the application
 
-To create the AWS infrastructure locally, you can use CDK and our `cdklocal` wrapper.
+To create the AWS infrastructure locally, you can use CDK and the `lstk cdk` proxy.
 
 ```shell
-cdklocal bootstrap
-cdklocal deploy --all
+lstk cdk bootstrap
+lstk cdk deploy --all
 ```
 
 This will deploy the `ddblocal-fargate-stack` stack, which includes the ECS service, the Application Load Balancer, and the DynamoDB table. You will see the output of the stack, including the URL of the load balancer.
