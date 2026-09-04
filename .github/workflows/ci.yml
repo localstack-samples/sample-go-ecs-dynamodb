@@ -29,29 +29,23 @@ jobs:
 
       - name: Install CDK
         run: |
-          npm install -g aws-cdk-local aws-cdk
-          cdklocal --version
+          npm install -g @localstack/lstk aws-cdk
+          cdk --version
 
       - name: Start LocalStack
         env:
-          DNS_ADDRESS: 0
+          LOCALSTACK_DNS_ADDRESS: 0
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
         run: |
-          pip install localstack
           docker pull localstack/localstack-pro:latest
-          # Start LocalStack in the background
-          LS_LOG=trace LOCALSTACK_AUTH_TOKEN=$LOCALSTACK_AUTH_TOKEN localstack start -d
-          # Wait 30 seconds for the LocalStack container to become ready before timing out
-          echo "Waiting for LocalStack startup..."
-          localstack wait -t 15
-          echo "Startup complete"
+          LOCALSTACK_LS_LOG=trace lstk start
 
       - name: Deploy using CDK
         run: |
-          cd cdk 
+          cd cdk
           yarn install
-          cdklocal bootstrap aws://000000000000/us-east-1
-          cdklocal deploy --all --require-approval never
+          lstk cdk bootstrap aws://000000000000/us-east-1
+          lstk cdk deploy --all --require-approval never
 
       - name: Send a Slack notification
         if: failure() || github.event_name != 'pull_request'
