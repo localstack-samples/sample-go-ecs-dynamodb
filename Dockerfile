@@ -3,7 +3,7 @@ FROM golang:1.20 AS build-image
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN GOPROXY=direct go mod download
+RUN go mod download
 
 COPY /cmd/*.go ./
 COPY /pkg ./pkg
