@@ -26,12 +26,25 @@ done
 echo "Service is healthy"
 
 POST_ID="smoke-$(date +%s)"
-created=$(curl -sf -m 10 -X POST "$URL/post" \
+# Print the status and body on errors instead of failing silently
+request() {
+  local body status
+  body=$(curl -s -m 10 -w '\n%{http_code}' "$@")
+  status=${body##*$'\n'}
+  body=${body%$'\n'*}
+  if [ "${status:0:1}" != "2" ]; then
+    echo "Test failed: $* returned HTTP $status: $body" >&2
+    return 1
+  fi
+  echo "$body"
+}
+
+created=$(request -X POST "$URL/post" \
   -H 'Content-Type: application/json' \
   -d "{\"id\":\"$POST_ID\",\"title\":\"Smoke test\",\"content\":\"Hello from CI\",\"status\":\"posted\"}")
 echo "Created: $created"
 
-fetched=$(curl -sf -m 10 "$URL/post/$POST_ID")
+fetched=$(request "$URL/post/$POST_ID")
 echo "Fetched: $fetched"
 if ! echo "$fetched" | jq -e --arg id "$POST_ID" '.id == $id and .title == "Smoke test" and .content == "Hello from CI"' > /dev/null; then
   echo "Test failed: fetched post does not match"
