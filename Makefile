@@ -3,7 +3,7 @@ export AWS_SECRET_ACCESS_KEY ?= test
 export AWS_DEFAULT_REGION=us-east-1
 SHELL := /bin/bash
 
-.PHONY: test run deploy destroy build_docker run_docker start stop logs
+.PHONY: test smoke-test run deploy destroy build_docker run_docker start stop logs
 
 .EXPORT_ALL_VARIABLES:
 AWS_PROFILE = default
@@ -34,9 +34,12 @@ test:
 	popd;
 	docker-compose down;
 
+smoke-test:	## Call the deployed service through the load balancer
+	./test.sh
+
 deploy:
 	cd cdk;\
-	lstk cdk bootstrap && lstk cdk deploy '*'
+	lstk cdk bootstrap && lstk cdk deploy '*' --require-approval never
 
 destroy:
 	cd cdk;\
