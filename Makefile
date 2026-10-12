@@ -35,7 +35,7 @@ test:
 	docker-compose down;
 
 smoke-test:	## Call the deployed service through the load balancer
-	./test.sh
+	env -u AWS_PROFILE ./test.sh
 
 deploy:
 	cd cdk;\

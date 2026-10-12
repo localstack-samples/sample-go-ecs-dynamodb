@@ -32,6 +32,9 @@ jobs:
           npm install -g @localstack/lstk aws-cdk
           cdk --version
 
+      - name: Configure the AWS profile
+        run: lstk setup aws --force --non-interactive
+
       - name: Start LocalStack
         env:
           LOCALSTACK_DNS_ADDRESS: 0
