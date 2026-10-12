@@ -32,9 +32,11 @@ jobs:
           npm install -g @localstack/lstk aws-cdk
           cdk --version
 
+      - name: Configure the AWS profile
+        run: lstk setup aws --force --non-interactive
+
       - name: Start LocalStack
         env:
-          LOCALSTACK_DNS_ADDRESS: 0
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
         run: |
           docker pull localstack/localstack-pro:latest
@@ -46,6 +48,18 @@ jobs:
           yarn install
           lstk cdk bootstrap aws://000000000000/us-east-1
           lstk cdk deploy --all --require-approval never
+
+      - name: Run smoke test
+        run: make smoke-test
+
+      - name: Show service logs
+        if: failure()
+        run: |
+          lstk aws logs tail --since 1h /ecs/ddb-local-service || true
+          for g in $(lstk aws logs describe-log-groups --query 'logGroups[?contains(logGroupName, `Fargate`)].logGroupName' --output text); do
+            lstk aws logs tail --since 1h "$g" || true
+          done
+          lstk logs | tail -200
 
       - name: Send a Slack notification
         if: failure() || github.event_name != 'pull_request'
